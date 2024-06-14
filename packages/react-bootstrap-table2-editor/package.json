@@ -1,6 +1,6 @@
 {
-  "name": "react-bootstrap-table2-editor",
-  "version": "1.4.0",
+  "name": "react-bootstrap-table2-editor-react18-node20",
+  "version": "1.4.1",
   "description": "it's the editor addon for react-bootstrap-table2",
   "main": "./lib/index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/react-bootstrap-table/react-bootstrap-table2.git"
+    "url": "git+https://github.com/ss-o-furda/react-bootstrap-table-next-react18-node20.git"
   },
   "keywords": [
     "react",
@@ -37,6 +37,11 @@
       "name": "Chun-MingChen",
       "email": "nick830314@gmail.com",
       "url": "https://github.com/Chun-MingChen"
+    },
+    {
+      "name": "Orest Furda",
+      "email": "orik7800@gmail.com",
+      "url": "https://github.com/ss-o-furda"
     }
   ],
   "peerDependencies": {
