@@ -1,10 +1,11 @@
 import gulp from 'gulp';
 import babel from 'gulp-babel';
-import sass from 'gulp-sass';
 import cleanCSS from 'gulp-clean-css';
 import cleanDir from 'gulp-clean';
 import rename from 'gulp-rename';
 import shell from 'gulp-shell';
+
+const sass = require('gulp-sass')(require('node-sass'));
 
 const LIB = 'lib';
 const DIST = 'dist';
