@@ -76,18 +76,19 @@ describe('DataContext', () => {
     });
   });
 
-  describe('componentWillReceiveProps', () => {
+ describe('componentDidUpdate → data prop change', () => {
+    const originalData = [...data];  
     const newData = [...data, { id: 3, name: 'test' }];
 
     beforeEach(() => {
-      wrapper = shallow(shallowContext());
-      wrapper.instance().UNSAFE_componentWillReceiveProps({
-        data: newData
-      });
+  
+      wrapper = shallow(shallowContext({ data: originalData }));
+      
+      wrapper.setProps({ data: newData });
     });
 
-    it('should have correct state.data', () => {
-      expect(wrapper.state().data).toEqual(newData);
+    it('should update state.data when props.data changes', () => {
+      expect(wrapper.state('data')).toEqual(newData);
     });
   });
 
