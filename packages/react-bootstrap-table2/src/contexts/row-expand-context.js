@@ -21,28 +21,30 @@ class RowExpandProvider extends React.Component {
     this.setState({ isClosing: this.state.isClosing.filter(value => value !== closedRow) });
   };
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps.expandRow) {
-      let nextExpanded = [...(nextProps.expandRow.expanded || this.state.expanded)];
-      const { nonExpandable = [] } = nextProps.expandRow;
-      nextExpanded = nextExpanded.filter(rowId => !_.contains(nonExpandable, rowId));
-      const isClosing = this.state.expanded.reduce((acc, cur) => {
-        if (!_.contains(nextExpanded, cur)) {
-          acc.push(cur);
-        }
-        return acc;
-      }, []);
+   componentDidUpdate(prevProps) {
+        const prevER = prevProps.expandRow;
+        const currER = this.props.expandRow;
+  
+        if (currER && prevER !== currER) {
 
-      this.setState(() => ({
-        expanded: nextExpanded,
-        isClosing
-      }));
-    } else {
-      this.setState(() => ({
-        expanded: this.state.expanded
-      }));
-    }
-  }
+          const prevExpanded = this.state.expanded;
+
+          let nextExpanded = [...(currER.expanded || prevExpanded)];
+          const { nonExpandable = [] } = currER;
+
+          nextExpanded = nextExpanded.filter(rowId => !_.contains(nonExpandable, rowId));
+
+          const isClosing = prevExpanded.reduce((acc, cur) => {
+            if (!_.contains(nextExpanded, cur)) {
+              acc.push(cur);
+            }
+            return acc;
+          }, []);
+    
+          this.setState({ expanded: nextExpanded, isClosing });
+        }
+
+      }
 
   handleRowExpand = (rowKey, expanded, rowIndex, e) => {
     const { data, keyField, expandRow: { onExpand, onlyOneExpanding, nonExpandable } } = this.props;
