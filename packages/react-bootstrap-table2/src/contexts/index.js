@@ -84,28 +84,35 @@ const withContext = Base =>
       }
     }
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
-      if (nextProps.columns.filter(col => col.sort).length <= 0) {
-        this.SortContext = null;
-      } else if (!this.SortContext) {
-        this.SortContext = createSortContext(
-          dataOperator, this.isRemoteSort, this.handleRemoteSortChange);
-      }
-      if (!nextProps.pagination && this.props.pagination) {
-        this.PaginationContext = null;
-      }
-      if (nextProps.pagination && !this.props.pagination) {
-        this.PaginationContext = nextProps.pagination.createContext(
-          this.isRemotePagination, this.handleRemotePageChange);
-      }
-      if (!nextProps.cellEdit && this.props.cellEdit) {
-        this.CellEditContext = null;
-      }
-      if (nextProps.cellEdit && !this.props.cellEdit) {
-        this.CellEditContext = nextProps.cellEdit.createContext(
-          _, dataOperator, this.isRemoteCellEdit, this.handleRemoteCellChange);
-      }
+    componentDidUpdate(prevProps) {
+
+   const currSortable = this.props.columns.filter(col => col.sort).length > 0;
+   const prevSortable = prevProps.columns.filter(col => col.sort).length > 0;
+    if (!currSortable && prevSortable) {
+      this.SortContext = null;
+    } else if (currSortable && !this.SortContext) {
+      this.SortContext = createSortContext(
+        dataOperator, this.isRemoteSort, this.handleRemoteSortChange
+      );
+   }
+
+
+    if (!this.props.pagination && prevProps.pagination) {
+      this.PaginationContext = null;
+    } else if (this.props.pagination && !prevProps.pagination) {
+      this.PaginationContext = this.props.pagination.createContext(
+        this.isRemotePagination, this.handleRemotePageChange
+      );
     }
+
+    if (!this.props.cellEdit && prevProps.cellEdit) {
+      this.CellEditContext = null;
+    } else if (this.props.cellEdit && !prevProps.cellEdit) {
+      this.CellEditContext = this.props.cellEdit.createContext(
+        _, dataOperator, this.isRemoteCellEdit, this.handleRemoteCellChange
+      );
+    }
+  }
 
     renderBase() {
       return (
