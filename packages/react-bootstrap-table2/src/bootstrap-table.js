@@ -20,13 +20,15 @@ class BootstrapTable extends PropsBaseResolver(Component) {
     this.validateProps();
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps.onDataSizeChange && !nextProps.pagination) {
-      if (nextProps.data.length !== this.props.data.length) {
-        nextProps.onDataSizeChange({ dataSize: nextProps.data.length });
-      }
-    }
-  }
+ componentDidUpdate(prevProps) {
+     if (
+       this.props.onDataSizeChange &&
+       !this.props.pagination &&
+       this.props.data.length !== prevProps.data.length
+     ) {
+       this.props.onDataSizeChange({ dataSize: this.props.data.length });
+     }
+   }
 
   // Exposed APIs
   getData = () => {
