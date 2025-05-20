@@ -91,51 +91,53 @@ describe('DataContext', () => {
     });
   });
 
-  describe('componentWillReceiveProps', () => {
-    const newSelectRow = {
-      ...defaultSelectRow,
-      selected: [1]
-    };
+describe('componentDidUpdate – selectRow prop change', () => {
+  const newSelectRow = {
+    ...defaultSelectRow,
+    selected: [1]
+  };
+
+  beforeEach(() => {
+    // İlk başta defaultSelectRow ile başlat
+    wrapper = shallow(shallowContext({ selectRow: defaultSelectRow }));
+    // Sonra prop'u güncelle → componentDidUpdate çalışacak
+    wrapper.setProps({ selectRow: newSelectRow });
+  });
+
+  it('should have correct this.selected', () => {
+    expect(wrapper.instance().selected).toEqual(newSelectRow.selected);
+  });
+
+  describe('when selectRow prop stays the same', () => {
+    const defaultSelected = [1];
 
     beforeEach(() => {
-      wrapper = shallow(shallowContext());
-      wrapper.instance().UNSAFE_componentWillReceiveProps({
-        selectRow: newSelectRow
-      });
+      // Başlangıçta seçilmiş değerli olarak başlat
+      const sameSelect = { ...defaultSelectRow, selected: defaultSelected };
+      wrapper = shallow(shallowContext({ selectRow: sameSelect }));
+      // Aynı prop’u tekrar set et
+      wrapper.setProps({ selectRow: sameSelect });
     });
 
-    it('should have correct this.selected', () => {
-      expect(wrapper.instance().selected).toEqual(newSelectRow.selected);
-    });
-
-    describe('if nextProps.selectRow is not existing', () => {
-      const defaultSelected = [1];
-      beforeEach(() => {
-        wrapper = shallow(shallowContext({
-          ...defaultSelectRow,
-          selected: defaultSelected
-        }));
-        wrapper.instance().UNSAFE_componentWillReceiveProps({
-          selectRow: defaultSelectRow
-        });
-      });
-
-      it('should keep origin this.selected', () => {
-        expect(wrapper.instance().selected).toEqual(defaultSelected);
-      });
-    });
-
-    describe('if nextProps.selectRow is not existing', () => {
-      beforeEach(() => {
-        wrapper = shallow(shallowContext());
-        wrapper.instance().UNSAFE_componentWillReceiveProps({});
-      });
-
-      it('should not set this.selected', () => {
-        expect(wrapper.instance().selected).toEqual([]);
-      });
+    it('should keep original this.selected', () => {
+      expect(wrapper.instance().selected).toEqual(defaultSelected);
     });
   });
+
+  describe('when selectRow prop is removed', () => {
+    beforeEach(() => {
+      // Başlangıçta defaultSelectRow ile başlat
+      wrapper = shallow(shallowContext({ selectRow: defaultSelectRow }));
+      // selectRow prop’unu kaldır
+      wrapper.setProps({ selectRow: undefined });
+    });
+
+    it('should not change this.selected', () => {
+      // defaultSelectRow.selected, testte [] ise yine [] kalacak
+      expect(wrapper.instance().selected).toEqual(defaultSelectRow.selected);
+    });
+  });
+});
 
   describe('when selectRow.selected prop is defined', () => {
     let selectRow;
