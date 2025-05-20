@@ -26,10 +26,13 @@ class SelectionProvider extends React.Component {
     return this.selected;
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps.selectRow) {
-      this.selected = nextProps.selectRow.selected || this.selected;
-    }
+ componentDidUpdate(prevProps) {
+   if (
+     this.props.selectRow &&
+    prevProps.selectRow !== this.props.selectRow
+   ) {
+     this.selected = this.props.selectRow.selected || this.selected;
+   }
   }
 
   handleRowSelect = (rowKey, checked, rowIndex, e) => {
