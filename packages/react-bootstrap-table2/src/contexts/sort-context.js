@@ -51,9 +51,14 @@ export default (
       }
     }
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
-      const { sort, columns } = nextProps;
-      if (sort && sort.dataField && sort.order) {
+    componentDidUpdate(prevProps) {
+      const { sort, columns } = this.props;
+      const prevSort = prevProps.sort || {};
+      if (
+        sort?.dataField &&
+        sort?.order &&
+        (prevSort.dataField !== sort.dataField || prevSort.order !== sort.order)
+      ) {
         this.setState({
           sortOrder: sort.order,
           sortColumn: columns.find(col => col.dataField === sort.dataField)
