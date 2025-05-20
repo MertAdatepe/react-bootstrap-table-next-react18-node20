@@ -21,8 +21,10 @@ export default () => {
       return this.props.data;
     }
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
-      this.setState(() => ({ data: nextProps.data }));
+    componentDidUpdate(prevProps) {
+      if (this.props.data !== prevProps.data) {
+        this.setState({ data: this.props.data });
+      }
     }
 
     render() {
