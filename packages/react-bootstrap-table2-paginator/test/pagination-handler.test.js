@@ -154,49 +154,61 @@ describe('paginationHandler', () => {
     });
   });
 
-  describe('componentWillReceiveProps', () => {
-    describe('when next props.currSizePerPage is diff than current one', () => {
-      const nextProps = createMockProps({ currSizePerPage: 20 });
+ describe('componentDidUpdate – pagination handler state update', () => {
+  describe('when next props.currSizePerPage is different than current one', () => {
+    const nextProps = createMockProps({ currSizePerPage: 20 });
 
-      beforeEach(() => {
-        wrapper = shallow(<MockComponentWithPaginationHandler { ...createMockProps() } />);
-        instance = wrapper.instance();
-      });
-
-      it('should setting correct state.totalPages', () => {
-        instance.UNSAFE_componentWillReceiveProps(nextProps);
-        expect(instance.state.totalPages).toEqual(
-          instance.calculateTotalPage(nextProps.currSizePerPage));
-      });
-
-      it('should setting correct state.lastPage', () => {
-        instance.UNSAFE_componentWillReceiveProps(nextProps);
-        const totalPages = instance.calculateTotalPage(nextProps.currSizePerPage);
-        expect(instance.state.lastPage).toEqual(
-          instance.calculateLastPage(totalPages));
-      });
+    beforeEach(() => {
+      wrapper = shallow(
+        <MockComponentWithPaginationHandler {...createMockProps()} />
+      );
+      instance = wrapper.instance();
+      // sayfa boyutu değişimini setProps ile uyguluyoruz
+      wrapper.setProps(nextProps);
     });
 
-    describe('when next props.dataSize is diff than current one', () => {
+    it('should set correct state.totalPages', () => {
+      const expectedTotal = instance.calculateTotalPage(
+        nextProps.currSizePerPage
+      );
+      expect(instance.state.totalPages).toEqual(expectedTotal);
+    });
+
+    it('should set correct state.lastPage', () => {
+      const totalPages = instance.calculateTotalPage(
+        nextProps.currSizePerPage
+      );
+      const expectedLast = instance.calculateLastPage(totalPages);
+      expect(instance.state.lastPage).toEqual(expectedLast);
+    });
+  });
+  
+    describe('when next props.dataSize is different than current one', () => {
       const nextProps = createMockProps({ dataSize: 33 });
-
+  
       beforeEach(() => {
-        wrapper = shallow(<MockComponentWithPaginationHandler { ...createMockProps() } />);
+        wrapper = shallow(
+          <MockComponentWithPaginationHandler {...createMockProps()} />
+        );
         instance = wrapper.instance();
+        wrapper.setProps(nextProps);
       });
-
-      it('should setting correct state.totalPages', () => {
-        instance.UNSAFE_componentWillReceiveProps(nextProps);
-        expect(instance.state.totalPages).toEqual(
-          instance.calculateTotalPage(nextProps.currSizePerPage, nextProps.dataSize));
+  
+      it('should set correct state.totalPages', () => {
+        const expectedTotal = instance.calculateTotalPage(
+          nextProps.currSizePerPage,
+          nextProps.dataSize
+        );
+        expect(instance.state.totalPages).toEqual(expectedTotal);
       });
-
-      it('should setting correct state.lastPage', () => {
-        instance.UNSAFE_componentWillReceiveProps(nextProps);
+  
+      it('should set correct state.lastPage', () => {
         const totalPages = instance.calculateTotalPage(
-          nextProps.currSizePerPage, nextProps.dataSize);
-        expect(instance.state.lastPage).toEqual(
-          instance.calculateLastPage(totalPages));
+          nextProps.currSizePerPage,
+          nextProps.dataSize
+        );
+        const expectedLast = instance.calculateLastPage(totalPages);
+        expect(instance.state.lastPage).toEqual(expectedLast);
       });
     });
   });
