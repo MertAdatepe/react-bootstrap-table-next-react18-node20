@@ -131,33 +131,48 @@ describe('Text Filter', () => {
     });
   });
 
-  describe('componentWillReceiveProps', () => {
-    const nextDefaultValue = 'tester';
-    const nextProps = {
-      onFilter,
-      column,
-      defaultValue: nextDefaultValue
-    };
+ describe('componentDidUpdate – defaultValue prop change', () => {
+  const nextDefaultValue = 'tester';
+  const nextProps = {
+    onFilter,
+    column,
+    defaultValue: nextDefaultValue
+  };
 
-    beforeEach(() => {
-      wrapper = mount(
-        <TextFilter onFilter={ onFilter } column={ column } />
-      );
-      instance = wrapper.instance();
-      instance.UNSAFE_componentWillReceiveProps(nextProps);
-    });
+  beforeEach(() => {
+    // Önce boş defaultValue ile mount edelim
+    wrapper = mount(
+      <TextFilter
+        onFilter={onFilter}
+        column={column}
+        defaultValue=""
+      />
+    );
+    // Spy’ları sıfırla
+    onFilter.resetHistory();
+    onFilterFirstReturn.resetHistory();
 
-    it('should setting state correctly when props.defaultValue is changed', () => {
-      expect(instance.state.value).toEqual(nextDefaultValue);
-    });
-
-    it('should calling onFilter correctly when props.defaultValue is changed', () => {
-      expect(onFilter.calledOnce).toBeTruthy();
-      expect(onFilter.calledWith(column, FILTER_TYPE.TEXT)).toBeTruthy();
-      expect(onFilterFirstReturn.calledOnce).toBeTruthy();
-      expect(onFilterFirstReturn.calledWith(nextDefaultValue)).toBeTruthy();
-    });
+    // Props’u güncelle → componentDidUpdate tetiklensin
+    wrapper.setProps(nextProps);
+    wrapper.update();
   });
+
+  it('should set state.value when defaultValue prop changes', () => {
+    const instance = wrapper.instance();
+    expect(instance.state.value).toEqual(nextDefaultValue);
+  });
+
+  it('should call onFilter with (column, FILTER_TYPE.TEXT) once', () => {
+    expect(onFilter.calledOnce).toBeTruthy();
+    expect(onFilter.calledWith(column, FILTER_TYPE.TEXT)).toBeTruthy();
+  });
+
+  it('should call the returned filter function with the new value', () => {
+    expect(onFilterFirstReturn.calledOnce).toBeTruthy();
+    expect(onFilterFirstReturn.calledWith(nextDefaultValue)).toBeTruthy();
+  });
+});
+
 
   describe('cleanFiltered', () => {
     beforeEach(() => {
