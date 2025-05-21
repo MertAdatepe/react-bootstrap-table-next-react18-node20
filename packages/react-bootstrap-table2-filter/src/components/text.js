@@ -46,10 +46,11 @@ class TextFilter extends Component {
     this.cleanTimer();
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (nextProps.defaultValue !== this.props.defaultValue) {
-      this.applyFilter(nextProps.defaultValue);
-    }
+  componentDidUpdate(prevProps) {
+
+   if (this.props.defaultValue !== prevProps.defaultValue) {
+      this.applyFilter(this.props.defaultValue);
+   }
   }
 
   filter(e) {
