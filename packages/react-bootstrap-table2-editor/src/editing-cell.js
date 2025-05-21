@@ -56,14 +56,14 @@ export default (_, onStartEdit) =>
       this.clearTimer();
     }
 
-    UNSAFE_componentWillReceiveProps({ message }) {
-      if (_.isDefined(message)) {
-        this.createTimer();
-        this.setState(() => ({
-          invalidMessage: message
-        }));
-      }
+  componentDidUpdate(prevProps) {
+   const { message } = this.props;
+    
+    if (_.isDefined(message) && prevProps.message !== message) {
+      this.createTimer();
+      this.setState({ invalidMessage: message });
     }
+  }
 
     clearTimer() {
       if (this.indicatorTimer) {
