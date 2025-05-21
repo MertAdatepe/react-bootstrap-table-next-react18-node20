@@ -110,106 +110,98 @@ describe('CellEditContext', () => {
     });
   });
 
-  describe('componentWillReceiveProps', () => {
-    const initialState = { ridx: 1, cidx: 1, message: 'test' };
-    describe('if nextProps.cellEdit is not existing', () => {
+ describe('componentDidUpdate – cellEdit prop change', () => {
+  const initialState = { ridx: 1, cidx: 1, message: 'test' };
+
+  describe('when cellEdit prop is removed', () => {
+    beforeEach(() => {
+      wrapper = shallow(shallowContext());
+      wrapper.setState(initialState);
+      // prop’u kaldırıyoruz
+      wrapper.setProps({ cellEdit: undefined });
+    });
+
+    it('should not set state.message', () => {
+      expect(wrapper.state('message')).toBe(initialState.message);
+    });
+    it('should not set state.ridx', () => {
+      expect(wrapper.state('ridx')).toBe(initialState.ridx);
+    });
+    it('should not set state.cidx', () => {
+      expect(wrapper.state('cidx')).toBe(initialState.cidx);
+    });
+  });
+
+  describe('when cellEdit exists but remote cell editing is disabled', () => {
+    beforeEach(() => {
+      wrapper = shallow(shallowContext());
+      wrapper.setState(initialState);
+      // remote cellEdit false iken prop’u ekliyoruz
+      wrapper.setProps({ cellEdit: cellEditFactory(defaultCellEdit) });
+    });
+
+    it('should not set state.message', () => {
+      expect(wrapper.state('message')).toBe(initialState.message);
+    });
+    it('should not set state.ridx', () => {
+      expect(wrapper.state('ridx')).toBe(initialState.ridx);
+    });
+    it('should not set state.cidx', () => {
+      expect(wrapper.state('cidx')).toBe(initialState.cidx);
+    });
+  });
+
+  describe('when cellEdit exists and remote cell editing is enabled', () => {
+    let message;
+
+    describe('and errorMessage is defined', () => {
       beforeEach(() => {
-        wrapper = shallow(shallowContext());
+        message = 'validation fail';
+        wrapper = shallow(shallowContext(defaultCellEdit, true));
         wrapper.setState(initialState);
-        wrapper.render();
-        wrapper.instance().UNSAFE_componentWillReceiveProps({});
+        // errorMessage ile birlikte prop’u güncelle
+        wrapper.setProps({
+          cellEdit: cellEditFactory({
+            ...defaultCellEdit,
+            errorMessage: message
+          })
+        });
       });
 
-      it('should not set state.message', () => {
-        expect(wrapper.state().message).toBe(initialState.message);
+      it('should set state.message', () => {
+        expect(wrapper.state('message')).toBe(message);
       });
-
       it('should not set state.ridx', () => {
-        expect(wrapper.state().ridx).toBe(initialState.ridx);
+        expect(wrapper.state('ridx')).toBe(initialState.ridx);
       });
-
       it('should not set state.cidx', () => {
-        expect(wrapper.state().cidx).toBe(initialState.cidx);
+        expect(wrapper.state('cidx')).toBe(initialState.cidx);
       });
     });
 
-    describe('if nextProps.cellEdit is existing but remote cell editing is disable', () => {
+    describe('and errorMessage is not defined', () => {
       beforeEach(() => {
-        wrapper = shallow(shallowContext());
+        wrapper = shallow(shallowContext(defaultCellEdit, true));
         wrapper.setState(initialState);
-        wrapper.render();
-        wrapper.instance().UNSAFE_componentWillReceiveProps({
-          cellEdit: cellEditFactory(defaultCellEdit)
+        // errorMessage olmadan only remote cellEdit
+        wrapper.setProps({
+          cellEdit: cellEditFactory({ ...defaultCellEdit })
         });
       });
 
       it('should not set state.message', () => {
-        expect(wrapper.state().message).toBe(initialState.message);
+        expect(wrapper.state('message')).toBe(initialState.message);
       });
-
-      it('should not set state.ridx', () => {
-        expect(wrapper.state().ridx).toBe(initialState.ridx);
+      it('should set state.ridx to null', () => {
+        expect(wrapper.state('ridx')).toBeNull();
       });
-
-      it('should not set state.cidx', () => {
-        expect(wrapper.state().cidx).toBe(initialState.cidx);
-      });
-    });
-
-    describe('if nextProps.cellEdit is existing and remote cell editing is enable', () => {
-      describe('if nextProps.cellEdit.options.errorMessage is defined', () => {
-        let message;
-        beforeEach(() => {
-          message = 'validation fail';
-          wrapper = shallow(shallowContext(defaultCellEdit, true));
-          wrapper.setState(initialState);
-          wrapper.render();
-          wrapper.instance().UNSAFE_componentWillReceiveProps({
-            cellEdit: cellEditFactory({
-              ...defaultCellEdit,
-              errorMessage: message
-            })
-          });
-          wrapper.update();
-        });
-
-        it('should set state.message', () => {
-          expect(wrapper.state('message')).toBe(message);
-        });
-
-        it('should not set state.ridx', () => {
-          expect(wrapper.state().ridx).toBe(initialState.ridx);
-        });
-
-        it('should not set state.cidx', () => {
-          expect(wrapper.state().cidx).toBe(initialState.cidx);
-        });
-      });
-
-      describe('if nextProps.cellEdit.options.errorMessage is not defined', () => {
-        beforeEach(() => {
-          wrapper = shallow(shallowContext(defaultCellEdit, true));
-          wrapper.setState(initialState);
-          wrapper.instance().UNSAFE_componentWillReceiveProps({
-            cellEdit: cellEditFactory({ ...defaultCellEdit })
-          });
-          wrapper.update();
-        });
-
-        it('should not set state.message', () => {
-          expect(wrapper.state('message')).toBe(initialState.message);
-        });
-
-        it('should set correct state.ridx', () => {
-          expect(wrapper.state().ridx).toBeNull();
-        });
-
-        it('should set correct state.cidx', () => {
-          expect(wrapper.state().cidx).toBeNull();
-        });
+      it('should set state.cidx to null', () => {
+        expect(wrapper.state('cidx')).toBeNull();
       });
     });
   });
+});
+
 
   describe('handleCellUpdate', () => {
     const row = data[1];
