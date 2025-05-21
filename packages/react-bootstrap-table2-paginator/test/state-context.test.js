@@ -141,56 +141,88 @@ describe('PaginationStateContext', () => {
     });
   });
 
-  describe('compoientWillReceiveProps', () => {
-    let instance;
-    let nextProps;
+ describe('componentDidUpdate – remote/custom pagination props', () => {
+  let instance;
+  let nextProps;
 
-    describe('if remote pagination is enable', () => {
-      beforeEach(() => {
-        wrapper = shallow(shallowContext({
-          ...defaultPagination
-        }, true));
-        instance = wrapper.instance();
-        setRemotePaginationEmitter(instance, true);
-        nextProps = {
-          data,
-          pagination: { ...defaultPagination, options: { page: 3, sizePerPage: 5, totalSize: 50 } }
-        };
-        instance.UNSAFE_componentWillReceiveProps(nextProps);
-      });
+  describe('when remote pagination is enabled', () => {
+    beforeEach(() => {
+      wrapper = shallow(
+        shallowContext(
+          { ...defaultPagination },
+          true // remotePaginationEnabled
+        )
+      );
+      instance = wrapper.instance();
+      // İç durumu remote pagination moduna al
+      setRemotePaginationEmitter(instance, true);
 
-      it('should always reset currPage and currSizePerPage', () => {
-        expect(instance.currPage).toEqual(nextProps.pagination.options.page);
-        expect(instance.currSizePerPage).toEqual(nextProps.pagination.options.sizePerPage);
-        expect(instance.dataSize).toEqual(nextProps.pagination.options.totalSize);
-      });
+      nextProps = {
+        data,
+        pagination: {
+          ...defaultPagination,
+          options: {
+            page: 3,
+            sizePerPage: 5,
+            totalSize: 50
+          }
+        }
+      };
+
+      // Props’u güncelle → componentDidUpdate tetiklenecek
+      wrapper.setProps(nextProps);
     });
 
-    describe('if options.custom is true', () => {
-      beforeEach(() => {
-        wrapper = shallow(shallowContext({
-          ...defaultPagination,
-          custom: true
-        }, true));
-        instance = wrapper.instance();
-        setRemotePaginationEmitter(instance, true);
-        nextProps = {
-          data,
-          pagination: {
-            ...defaultPagination,
-            options: { page: 3, sizePerPage: 5, custom: true, totalSize: 50 }
-          }
-        };
-        instance.UNSAFE_componentWillReceiveProps(nextProps);
-      });
-
-      it('should always reset currPage and currSizePerPage', () => {
-        expect(instance.currPage).toEqual(nextProps.pagination.options.page);
-        expect(instance.currSizePerPage).toEqual(nextProps.pagination.options.sizePerPage);
-        expect(instance.dataSize).toEqual(nextProps.pagination.options.totalSize);
-      });
+    it('should reset currPage, currSizePerPage and dataSize', () => {
+      expect(instance.currPage).toEqual(nextProps.pagination.options.page);
+      expect(instance.currSizePerPage).toEqual(
+        nextProps.pagination.options.sizePerPage
+      );
+      expect(instance.dataSize).toEqual(
+        nextProps.pagination.options.totalSize
+      );
     });
   });
+
+  describe('when custom pagination is true', () => {
+    beforeEach(() => {
+      wrapper = shallow(
+        shallowContext(
+          { ...defaultPagination, custom: true },
+          true
+        )
+      );
+      instance = wrapper.instance();
+      setRemotePaginationEmitter(instance, true);
+
+      nextProps = {
+        data,
+        pagination: {
+          ...defaultPagination,
+          options: {
+            page: 3,
+            sizePerPage: 5,
+            custom: true,
+            totalSize: 50
+          }
+        }
+      };
+
+      wrapper.setProps(nextProps);
+    });
+
+    it('should reset currPage, currSizePerPage and dataSize', () => {
+      expect(instance.currPage).toEqual(nextProps.pagination.options.page);
+      expect(instance.currSizePerPage).toEqual(
+        nextProps.pagination.options.sizePerPage
+      );
+      expect(instance.dataSize).toEqual(
+        nextProps.pagination.options.totalSize
+      );
+    });
+  });
+});
+
 
   describe('handleDataSizeChange', () => {
     let instance;
