@@ -20,20 +20,25 @@ class PaginationDataProvider extends Provider {
     isRemotePagination: PropTypes.func.isRequired
   }
 
-  // eslint-disable-next-line camelcase, react/sort-comp
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    super.UNSAFE_componentWillReceiveProps(nextProps);
+  componentDidUpdate(prevProps) {
+    // Call super if it implements componentDidUpdate
+    if (super.componentDidUpdate) {
+      super.componentDidUpdate(prevProps);
+    }
+
     const { currSizePerPage } = this;
-    const { custom, onPageChange } = nextProps.pagination.options;
+    const { pagination, onDataSizeChange, data } = this.props;
+    const { custom, onPageChange, pageStartIndex: psiProp } = pagination.options;
 
-    const pageStartIndex = typeof nextProps.pagination.options.pageStartIndex !== 'undefined' ?
-      nextProps.pagination.options.pageStartIndex : Const.PAGE_START_INDEX;
+    const pageStartIndex = typeof psiProp !== 'undefined'
+      ? psiProp
+      : Const.PAGE_START_INDEX;
 
-    // user should align the page when the page is not fit to the data size when remote enable
+    // Align page when data size changes and remote pagination is disabled
     if (!this.isRemotePagination() && !custom) {
       const newPage = alignPage(
-        nextProps.data.length,
-        this.props.data.length,
+        data.length,
+        prevProps.data.length,
         this.currPage,
         currSizePerPage,
         pageStartIndex
@@ -46,8 +51,10 @@ class PaginationDataProvider extends Provider {
         this.currPage = newPage;
       }
     }
-    if (nextProps.onDataSizeChange && nextProps.data.length !== this.props.data.length) {
-      nextProps.onDataSizeChange({ dataSize: nextProps.data.length });
+
+    // Emit data size change if needed
+    if (onDataSizeChange && data.length !== prevProps.data.length) {
+      onDataSizeChange({ dataSize: data.length });
     }
   }
 
@@ -78,20 +85,21 @@ class PaginationDataProvider extends Provider {
     let { data } = this.props;
     const { pagination: { options } } = this.props;
     const { currPage, currSizePerPage } = this;
-    const pageStartIndex = typeof options.pageStartIndex === 'undefined' ?
-      Const.PAGE_START_INDEX : options.pageStartIndex;
+    const pageStartIndex = typeof options.pageStartIndex === 'undefined'
+      ? Const.PAGE_START_INDEX
+      : options.pageStartIndex;
 
-    data = this.isRemotePagination() ?
-      data :
-      getByCurrPage(
-        data,
-        currPage,
-        currSizePerPage,
-        pageStartIndex
-      );
+    data = this.isRemotePagination()
+      ? data
+      : getByCurrPage(
+          data,
+          currPage,
+          currSizePerPage,
+          pageStartIndex
+        );
 
     return (
-      <PaginationDataContext.Provider value={ { data, setRemoteEmitter: this.setRemoteEmitter } }>
+      <PaginationDataContext.Provider value={{ data, setRemoteEmitter: this.setRemoteEmitter }}>
         { this.props.children }
         { this.renderDefaultPagination() }
       </PaginationDataContext.Provider>
