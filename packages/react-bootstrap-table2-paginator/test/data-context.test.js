@@ -159,50 +159,58 @@ describe('PaginationDataContext', () => {
     });
   });
 
-  describe('componentWillReceiveProps', () => {
-    let instance;
-    let nextProps;
-    describe('when page is not align', () => {
+ describe('componentDidUpdate – pagination prop change', () => {
+  let instance;
+  let nextProps;
+
+  describe('when page is not align', () => {
+    beforeEach(() => {
+      // İlk başta page=2 olarak mount edelim
+      wrapper = shallow(shallowContext({
+        ...defaultPagination,
+        page: 2
+      }));
+      instance = wrapper.instance();
+      // Sonra data’yı boş diziyle, pagination options’ı default ile güncelle
+      nextProps = {
+        data: [],
+        pagination: { ...defaultPagination }
+      };
+      wrapper.setProps(nextProps);
+    });
+
+    it('should reset currPage to first page', () => {
+      expect(instance.currPage).toEqual(1);
+    });
+
+    describe('and options.onPageChange is defined', () => {
+      const onPageChange = jest.fn();
+
       beforeEach(() => {
+        onPageChange.mockClear();
         wrapper = shallow(shallowContext({
           ...defaultPagination,
           page: 2
         }));
         instance = wrapper.instance();
-        wrapper.render();
         nextProps = {
           data: [],
-          pagination: { ...defaultPagination }
-        };
-        instance.UNSAFE_componentWillReceiveProps(nextProps);
-      });
-
-      it('should reset currPage to first page', () => {
-        expect(instance.currPage).toEqual(1);
-      });
-
-      describe('if options.onPageChange is defined', () => {
-        const onPageChange = jest.fn();
-        beforeEach(() => {
-          onPageChange.mockClear();
-          wrapper = shallow(shallowContext({
+          pagination: {
             ...defaultPagination,
-            page: 2
-          }));
-          instance = wrapper.instance();
-          wrapper.render();
-          nextProps = {
-            data: [],
-            pagination: { ...defaultPagination, options: { onPageChange } }
-          };
-          instance.UNSAFE_componentWillReceiveProps(nextProps);
-        });
+            options: { ...defaultPagination.options, onPageChange }
+          }
+        };
+        wrapper.setProps(nextProps);
+      });
 
-        it('should call options.onPageChange correctly', () => {
-          expect(onPageChange).toHaveBeenCalledTimes(1);
-          expect(onPageChange).toHaveBeenCalledWith(instance.currPage, instance.currSizePerPage);
-        });
+      it('should call options.onPageChange correctly', () => {
+        expect(onPageChange).toHaveBeenCalledTimes(1);
+        expect(onPageChange).toHaveBeenCalledWith(
+          instance.currPage,
+          instance.currSizePerPage
+        );
       });
     });
   });
+});
 });
