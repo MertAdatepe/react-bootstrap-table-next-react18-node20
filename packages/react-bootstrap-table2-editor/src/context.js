@@ -46,17 +46,19 @@ export default (
       };
     }
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
-      if (nextProps.cellEdit && isRemoteCellEdit()) {
-        if (nextProps.cellEdit.options.errorMessage) {
-          this.setState(() => ({
-            message: nextProps.cellEdit.options.errorMessage
-          }));
-        } else {
-          this.escapeEditing();
-        }
+  componentDidUpdate(prevProps) {
+    const currCE = this.props.cellEdit;
+    const prevCE = prevProps.cellEdit;
+
+    
+    if (currCE && isRemoteCellEdit() && prevCE !== currCE) {
+      if (currCE.options?.errorMessage) {
+        this.setState({ message: currCE.options.errorMessage });
+      } else {
+        this.escapeEditing();
       }
     }
+  }
 
     handleCellUpdate(row, column, newValue) {
       const newValueWithType = dataOperator.typeConvert(column.type, newValue);
