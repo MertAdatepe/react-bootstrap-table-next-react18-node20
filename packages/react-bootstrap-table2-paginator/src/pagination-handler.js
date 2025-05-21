@@ -13,14 +13,23 @@ export default WrappedComponent =>
       this.state = this.initialState();
     }
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
-      const { dataSize, currSizePerPage } = nextProps;
-      if (currSizePerPage !== this.props.currSizePerPage || dataSize !== this.props.dataSize) {
-        const totalPages = this.calculateTotalPage(currSizePerPage, dataSize);
-        const lastPage = this.calculateLastPage(totalPages);
-        this.setState({ totalPages, lastPage });
-      }
-    }
+-    UNSAFE_componentWillReceiveProps(nextProps) {
+-      const { dataSize, currSizePerPage } = nextProps;
+-      if (currSizePerPage !== this.props.currSizePerPage || dataSize !== this.props.dataSize) {
+-        const totalPages = this.calculateTotalPage(currSizePerPage, dataSize);
+-        const lastPage = this.calculateLastPage(totalPages);
+-        this.setState({ totalPages, lastPage });
+-      }
+-    }
++    componentDidUpdate(prevProps) {
++      const { dataSize: prevDataSize, currSizePerPage: prevSize } = prevProps;
++      const { dataSize, currSizePerPage } = this.props;
++      if (currSizePerPage !== prevSize || dataSize !== prevDataSize) {
++        const totalPages = this.calculateTotalPage(currSizePerPage, dataSize);
++        const lastPage = this.calculateLastPage(totalPages);
++        this.setState({ totalPages, lastPage });
++      }
++    }
 
     handleChangeSizePerPage(sizePerPage) {
       const { currSizePerPage, onSizePerPageChange } = this.props;
@@ -66,13 +75,12 @@ export default WrappedComponent =>
     render() {
       return (
         <WrappedComponent
-          { ...this.props }
-          lastPage={ this.state.lastPage }
-          totalPages={ this.state.totalPages }
-          onPageChange={ this.handleChangePage }
-          onSizePerPageChange={ this.handleChangeSizePerPage }
+          {...this.props}
+          lastPage={this.state.lastPage}
+          totalPages={this.state.totalPages}
+          onPageChange={this.handleChangePage}
+          onSizePerPageChange={this.handleChangeSizePerPage}
         />
       );
     }
   };
-
