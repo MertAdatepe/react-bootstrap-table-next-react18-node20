@@ -3,27 +3,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const handleDebounce = (func, wait, immediate) => {
+const handleDebounce = (func, wait = 0, immediate = false) => {
   let timeout;
-
-  return () => {
+  return function(...args) {
     const later = () => {
       timeout = null;
-
-      if (!immediate) {
-        func.apply(this, arguments);
-      }
+      if (!immediate) func.apply(this, args);
     };
-
     const callNow = immediate && !timeout;
-
     clearTimeout(timeout);
-
-    timeout = setTimeout(later, wait || 0);
-
-    if (callNow) {
-      func.appy(this, arguments);
-    }
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(this, args);
   };
 };
 
@@ -33,22 +23,27 @@ class SearchBar extends React.Component {
     this.state = {
       value: props.searchText
     };
+    // debounce onSearch
+    this.debouncedSearch = handleDebounce(this.triggerSearch, props.delay, false);
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.searchText !== prevState.value) {
+      return { value: nextProps.searchText };
+    }
+    return null;
+  }
+
+  triggerSearch = () => {
+    const { onSearch } = this.props;
+    onSearch(this.state.value);
   }
 
   onChangeValue = (e) => {
-    this.setState({ value: e.target.value });
-  }
-
-  onKeyup = () => {
-    const { delay, onSearch } = this.props;
-    const debounceCallback = handleDebounce(() => {
-      onSearch(this.input.value);
-    }, delay);
-    debounceCallback();
-  }
-
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    this.setState({ value: nextProps.searchText });
+    const newValue = e.target.value;
+    this.setState({ value: newValue }, () => {
+      this.debouncedSearch();
+    });
   }
 
   render() {
@@ -59,26 +54,26 @@ class SearchBar extends React.Component {
       tableId,
       srText
     } = this.props;
+    const { value } = this.state;
 
     return (
       <label
-        htmlFor={ `search-bar-${tableId}` }
+        htmlFor={`search-bar-${tableId}`}
         className="search-label"
       >
-        <span id={ `search-bar-${tableId}-label` } className="sr-only">
-          { srText }
+        <span id={`search-bar-${tableId}-label`} className="sr-only">
+          {srText}
         </span>
         <input
-          ref={ n => this.input = n }
-          id={ `search-bar-${tableId}` }
+          ref={n => this.input = n}
+          id={`search-bar-${tableId}`}
           type="text"
-          style={ style }
-          aria-labelledby={ `search-bar-${tableId}-label` }
-          onKeyUp={ () => this.onKeyup() }
-          onChange={ this.onChangeValue }
-          className={ `form-control ${className}` }
-          value={ this.state.value }
-          placeholder={ placeholder || SearchBar.defaultProps.placeholder }
+          style={style}
+          aria-labelledby={`search-bar-${tableId}-label`}
+          onChange={this.onChangeValue}
+          className={`form-control ${className}`}
+          value={value}
+          placeholder={placeholder}
         />
       </label>
     );
