@@ -51,29 +51,35 @@ export default (options = {
       }
     }
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
-      if (nextProps.searchText !== this.props.searchText) {
-        if (isRemoteSearch()) {
-          handleRemoteSearchChange(nextProps.searchText);
-        } else {
-          const result = this.search(nextProps);
-          this.triggerListener(result);
-          this.setState({
-            data: result
-          });
-        }
+   componentDidUpdate(prevProps) {
+    const { searchText, data: newData } = this.props;
+  
+    // 1) searchText değiştiyse
+    if (searchText !== prevProps.searchText) {
+      if (isRemoteSearch()) {
+        handleRemoteSearchChange(searchText);
       } else {
-        if (isRemoteSearch()) {
-          this.setState({ data: nextProps.data });
-        } else if (!_.isEqual(nextProps.data, this.props.data)) {
-          const result = this.search(nextProps);
-          this.triggerListener(result);
-          this.setState({
-            data: result
-          });
-        }
+        const result = this.search(this.props);
+        this.triggerListener(result);
+        this.setState({ data: result });
       }
+      return;
     }
+  
+    // 2) searchText aynı kalıp data değiştiyse
+    if (isRemoteSearch()) {
+      // remote aramada her data güncellemesinde direkt gelen datayı koy
+      if (newData !== prevProps.data) {
+        this.setState({ data: newData });
+      }
+    } else if (!_.isEqual(newData, prevProps.data)) {
+      // local aramada data değiştiğinde aramayı tekrar uygula
+      const result = this.search(this.props);
+      this.triggerListener(result);
+      this.setState({ data: result });
+    }
+  }
+
 
     search(props) {
       const { data, columns } = props;
