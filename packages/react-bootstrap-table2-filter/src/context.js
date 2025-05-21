@@ -84,13 +84,15 @@ export default (
     getFiltered() {
       return this.data;
     }
+    
+    componentDidUpdate(prevProps) {
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
-      // let nextData = nextProps.data;
-      if (!isRemoteFiltering() && !_.isEqual(nextProps.data, this.data)) {
-        this.doFilter(nextProps, this.isEmitDataChange);
+      const nextData = this.props.data;
+      if (!isRemoteFiltering() && !_.isEqual(nextData, this.data)) {
+        this.doFilter(this.props, this.isEmitDataChange);
       } else {
-        this.data = nextProps.data;
+       
+        this.data = nextData;
       }
     }
 
